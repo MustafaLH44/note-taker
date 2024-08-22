@@ -8,7 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadNotes() {
         fetch('/api/notes')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(notes => {
                 notesList.innerHTML = '';
                 notes.forEach(note => {
@@ -23,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     notesList.appendChild(noteItem);
                 });
-            });
+            })
+            .catch(error => console.error('Error fetching notes:', error));
     }
 
     saveNoteBtn.addEventListener('click', () => {
@@ -35,12 +41,18 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title, text })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(() => {
             loadNotes();
             noteTitle.value = '';
             noteText.value = '';
-        });
+        })
+        .catch(error => console.error('Error saving note:', error));
     });
 
     clearFormBtn.addEventListener('click', () => {
